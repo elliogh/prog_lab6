@@ -102,7 +102,7 @@ public class CommandReader {
                 isExecuteScript = false;
                 break;
             case "exit" :
-                System.out.println("Завершение работы клиентского приложения"); //TODO
+                System.out.println("Завершение работы клиентского приложения");
                 System.exit(0);
             case "remove_lower" :
                 try {
