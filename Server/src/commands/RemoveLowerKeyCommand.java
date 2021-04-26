@@ -10,8 +10,8 @@ import java.util.TreeMap;
  * Класс команды remove_lower_key
  */
 public class RemoveLowerKeyCommand implements Command, Serializable{
-    private String key = "remove_lower_key";
-    private String helpText = "удалить из коллекции все элементы, ключ которых меньше, чем заданный";
+    private final String key = "remove_lower_key";
+    private final String helpText = "удалить из коллекции все элементы, ключ которых меньше, чем заданный";
     private final int id;
     private static final long serialVersionUID = 6529685098267757690L;
 

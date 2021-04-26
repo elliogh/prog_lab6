@@ -9,13 +9,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandReceiver {
-    private TreeMap<Integer, Product> collection;
-    private LocalDate initDate;
-    private HashSet<Command> commandSet = new HashSet<>();
+    private final TreeMap<Integer, Product> collection;
+    private final LocalDate initDate;
+    private final HashSet<Command> commandSet = new HashSet<>();
+    private String path;
 
     public CommandReceiver() {
         initDate = LocalDate.now();
-        collection = new JsonParser().jsonFileToCollection("./src/input_file.json");
+        path = "./src/input_file.json";
+        if (System.getenv("tselikov") != null) path = System.getenv("tselikov");
+        collection = new JsonParser().jsonFileToCollection(path);
         addCommands(
                 new HelpCommand(),
                 new InfoCommand(),
@@ -161,6 +164,11 @@ public class CommandReceiver {
                 .map(Product::toString)
                 .collect(Collectors.joining("\n"));
         else return "Коллекция пуста";
+    }
+
+    public String save() {
+        new JsonParser().writeToJson(path, collection);
+        return "Коллекция сохранена";
     }
 
     /**

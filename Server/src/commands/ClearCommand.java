@@ -10,8 +10,8 @@ import java.util.TreeMap;
  * Класс команды clear
  */
 public class ClearCommand implements Command, Serializable {
-    private String key = "clear";
-    private String helpText = "очистить коллекцию";
+    private final String key = "clear";
+    private final String helpText = "очистить коллекцию";
 
     @Override
     public String execute(CommandReceiver commandReceiver) {

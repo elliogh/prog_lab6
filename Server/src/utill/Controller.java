@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.Scanner;
 
 public class Controller {
     Connector connector;
@@ -30,17 +31,21 @@ public class Controller {
     public void run(){
         Container container;
         String feedBack;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         while (true){
             container = receiveCommand();
             //execute
             try {
+                //send result
                 feedBack = commandInvoker.execute((Command) container.getObject());
-                //System.out.println(feedBack);
-            } catch (NullPointerException e){
-                continue;
+                send(channel, new Container(feedBack, container.getAddress()));
+            } catch (NullPointerException e) {}
+            try {
+                if (reader.ready())
+                    if (reader.readLine().trim().split(" ")[0].equals("save")) System.out.println(commandReceiver.save());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            //send result
-            send(channel,new Container(feedBack, container.getAddress()));
         }
     }
 
@@ -51,7 +56,7 @@ public class Controller {
 
     //Получаем данные от клиента и пихаем в контейнер
     private Container receive(DatagramChannel channel, SocketAddress a) {
-        byte[] byteArray = new byte[1024];
+        byte[] byteArray = new byte[16384];
         try {
             ByteBuffer buffer = ByteBuffer.wrap(byteArray);
             a = channel.receive(buffer);

@@ -9,8 +9,8 @@ import java.io.Serializable;
  * Класс команды remove_all_by_owner
  */
 public class RemoveAllByOwnerCommand implements Command, Serializable {
-    private String key = "remove_all_by_owner";
-    private String helpText = "удалить из коллекции все элементы, значение поля owner которого эквивалентно заданному";
+    private final String key = "remove_all_by_owner";
+    private final String helpText = "удалить из коллекции все элементы, значение поля owner которого эквивалентно заданному";
     private final Person owner;
     private static final long serialVersionUID = 6529685098267757690L;
 

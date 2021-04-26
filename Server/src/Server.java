@@ -7,13 +7,6 @@ import java.util.*;
 public class Server{
 
     public static void main(String[] args) {
-//        String path = "./src/input_file.json";
-//        JsonParser jsonParser = new JsonParser();
-//        TreeMap<Integer, Product> collection = jsonParser.jsonFileToCollection(path);
-//        for (Map.Entry<Integer, Product> e : collection.entrySet()) {
-//            System.out.println(e.getValue());
-//        }
-
         System.out.println("Начало работы сервера:");
         int port = askPort();
         Controller controller = new Controller(port);
@@ -25,12 +18,14 @@ public class Server{
         int port = 0;
         String input;
         System.out.print("Введите порт: ");
-        input = consoleScanner.nextLine();
         try {
+            input = consoleScanner.nextLine();
             port = Integer.parseInt(input);
         } catch (NumberFormatException e) {
             System.out.println("Неправильный порт");
             System.exit(1);
+        } catch (NoSuchElementException e) {
+            System.out.println("Завершение работы сервера...");
         }
         return port;
     }

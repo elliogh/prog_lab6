@@ -8,8 +8,8 @@ import java.io.Serializable;
  * Класс команды print_ascending
  */
 public class PrintAscendingCommand implements Command, Serializable {
-    private String key = "print_ascending";
-    private String helpText = "вывести элементы коллекции в порядке возрастания";
+    private final String key = "print_ascending";
+    private final String helpText = "вывести элементы коллекции в порядке возрастания";
 
     @Override
     public String execute(CommandReceiver commandReceiver) {

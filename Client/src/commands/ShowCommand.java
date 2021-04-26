@@ -8,8 +8,8 @@ import java.io.Serializable;
  * Класс команды show
  */
 public class ShowCommand implements Command, Serializable {
-    private String key = "show";
-    private String helpText = "вывести в стандартный поток вывода все элементы коллекции в строковом представлении";
+    private final String key = "show";
+    private final String helpText = "вывести в стандартный поток вывода все элементы коллекции в строковом представлении";
 
     @Override
     public String execute(CommandReceiver commandReceiver) {

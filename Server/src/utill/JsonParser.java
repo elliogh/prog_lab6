@@ -4,12 +4,10 @@ import collection.Coordinates;
 import collection.Person;
 import collection.Product;
 import collection.UnitOfMeasure;
+import com.google.gson.Gson;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -95,6 +93,7 @@ public class JsonParser {
         if (matcherId.find()) id = Integer.parseInt(line.substring(matcherId.start(), matcherId.end()));
         return id;
     }
+
     public String parseName(String line) {
         String name = "";
         Pattern patternName = Pattern.compile("(?<=\"name\":\")\\w+");
@@ -102,6 +101,7 @@ public class JsonParser {
         if (matcherName.find()) name = line.substring(matcherName.start(), matcherName.end());
         return name;
     }
+
     public Coordinates parseCoordinates(String line) {
         double x = 0;
         Float y = 0F;
@@ -113,6 +113,7 @@ public class JsonParser {
         if (matcherCoordinatesY.find()) y = Float.parseFloat(line.substring(matcherCoordinatesY.start(), matcherCoordinatesY.end()));
         return new Coordinates(x,y);
     }
+
     public Date parseCreationDate(String line) {
         String stringMonth = "";
         Pattern patternMonth = Pattern.compile("(?<=\"creationDate\":\")\\w+");
@@ -133,6 +134,7 @@ public class JsonParser {
 
         return new Date(year,month, date);
     }
+
     public int parsePrice(String line) {
         int price = 0;
         Pattern patternPrice = Pattern.compile("(?<=\"price\":)\\d+");
@@ -140,6 +142,7 @@ public class JsonParser {
         if (matcherPrice.find()) price = Integer.parseInt(line.substring(matcherPrice.start(), matcherPrice.end()));
         return price;
     }
+
     public String parsePartNumber(String line) {
         String partNumber = "";
         Pattern patternPartNumber = Pattern.compile("(?<=\"partNumber\":\")\\w+");
@@ -147,6 +150,7 @@ public class JsonParser {
         if (matcherPartNumber.find()) partNumber =line.substring(matcherPartNumber.start(), matcherPartNumber.end());
         return partNumber;
     }
+
     public Float parseManufactureCost(String line) {
         Float manufactureCost = 0F;
         Pattern patternManufactureCost = Pattern.compile("(?<=\"manufactureCost\":)\\d+.\\d+");
@@ -154,6 +158,7 @@ public class JsonParser {
         if (matcherManufactureCost.find()) manufactureCost = Float.parseFloat(line.substring(matcherManufactureCost.start(), matcherManufactureCost.end()));
         return manufactureCost;
     }
+
     public UnitOfMeasure parseUnitOfMeasure(String line) {
         UnitOfMeasure unitOfMeasure = null;
         Pattern patternUnitOfMeasure = Pattern.compile("(?<=\"unitOfMeasure\":\")\\w+");
@@ -173,6 +178,7 @@ public class JsonParser {
         }
         return unitOfMeasure;
     }
+
     public Person parseOwner(String line) {
         String name = "";
         Pattern patternName = Pattern.compile("(?<=[{]\"name\":\")\\w+");
@@ -216,6 +222,7 @@ public class JsonParser {
 
         return new Person(name, birthday, height, weight, passportID);
     }
+
     public int findMonth(String stringMonth) {
         int month = 0;
         switch (stringMonth) {
@@ -257,5 +264,50 @@ public class JsonParser {
                 break;
         }
         return month;
+    }
+
+    public void writeToJson(String path,TreeMap<Integer, Product> collection) {
+        Gson gson = new Gson();
+        StringBuilder text = new StringBuilder();
+
+        ArrayList<String> list = new ArrayList<>();
+
+        for (Map.Entry<Integer, Product> e : collection.entrySet()) {
+            list.add(gson.toJson(e.getValue()));
+        }
+        if (list.size() > 0) {
+            for (int i = 0; i < list.get(0).length() - 1; i++) {
+                text.append(list.get(0).charAt(i));
+            }
+            text.append(",\n");
+
+            for (int i = 1; i < list.size() - 1; i++) {
+                for (int j = 1; j < list.get(i).length() - 1; j++) {
+                    text.append(list.get(i).charAt(j));
+                }
+                text.append(",\n");
+            }
+            if (collection.size() != 1) {
+                for (int i = 1; i < list.get(list.size() - 1).length(); i++) {
+                    text.append(list.get(list.size() - 1).charAt(i));
+                }
+            }
+        }
+        else System.out.println("Коллекция пуста");
+
+        String str = String.valueOf(text);
+        byte [] buffer = str.getBytes();
+        try {
+            File file = new File(path);
+            file.delete();
+            File f = new File(path);
+            f.createNewFile();
+            FileOutputStream fos = new FileOutputStream(path);
+            fos.write(buffer, 0, buffer.length);
+        } catch (FileNotFoundException e) {
+            System.out.println("Файл не найден");
+        } catch (IOException e) {
+            System.out.println("Ошибка с IO");
+        }
     }
 }

@@ -8,8 +8,8 @@ import java.io.Serializable;
  * Класс команды info
  */
 public class InfoCommand implements Command, Serializable {
-    private String key = "info";
-    private String helpText = "вывести в стандартный поток вывода информацию о коллекции (тип, дата инициализации, количество элементов и т.д.)";
+    private final String key = "info";
+    private final String helpText = "вывести в стандартный поток вывода информацию о коллекции (тип, дата инициализации, количество элементов и т.д.)";
 
     @Override
     public String execute(CommandReceiver commandReceiver) {

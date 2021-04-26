@@ -8,8 +8,8 @@ import java.io.Serializable;
  * Класс команды remove_key
  */
 public class RemoveKeyCommand implements Command, Serializable {
-    private String key = "remove_key";
-    private String helpText = "удалить элемент из коллекции по его ключу";
+    private final String key = "remove_key";
+    private final String helpText = "удалить элемент из коллекции по его ключу";
     private final int id;
 
     public RemoveKeyCommand(int id) {

@@ -9,8 +9,8 @@ import java.io.Serializable;
  * Класс команды insert
  */
 public class InsertCommand implements Command, Serializable {
-    private String key = "insert";
-    private String helpText = "добавить новый элемент с заданным ключом";
+    private final String key = "insert";
+    private final String helpText = "добавить новый элемент с заданным ключом";
     private final int id;
     private final Product product;
     private static final long serialVersionUID = 6529685098267757690L;

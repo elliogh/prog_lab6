@@ -10,8 +10,8 @@ import java.util.TreeMap;
  * Класс команды print_descending
  */
 public class PrintDescendingCommand implements Command, Serializable {
-    private String key = "print_descending";
-    private String helpText = "вывести элементы коллекции в порядке убывания";
+    private final String key = "print_descending";
+    private final String helpText = "вывести элементы коллекции в порядке убывания";
 
     @Override
     public String execute(CommandReceiver commandReceiver) {

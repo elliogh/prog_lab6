@@ -10,8 +10,8 @@ import java.util.TreeMap;
  * Класс команды exit
  */
 public class ExitCommand implements Command, Serializable {
-    private String key = "exit";
-    private String helpText = "завершить программу (без сохранения в файл)";
+    private final String key = "exit";
+    private final String helpText = "завершить программу (без сохранения в файл)";
 
     @Override
     public String execute(CommandReceiver commandReceiver) {

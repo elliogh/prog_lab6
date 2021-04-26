@@ -10,8 +10,8 @@ import java.util.TreeMap;
  * Класс команды help
  */
 public class HelpCommand implements Command, Serializable {
-    private String key = "help";
-    private String helpText = "вывести справку по доступным командам";
+    private final String key = "help";
+    private final String helpText = "вывести справку по доступным командам";
 
     @Override
     public String execute(CommandReceiver commandReceiver) {

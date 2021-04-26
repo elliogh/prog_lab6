@@ -10,8 +10,8 @@ import java.util.TreeMap;
  * Класс команды replace_if_greater
  */
 public class ReplaceIfGreaterCommand implements Command, Serializable {
-    private String key = "replace_if_greater";
-    private String helpText = "заменить значение по ключу, если новое значение больше старого";
+    private final String key = "replace_if_greater";
+    private final String helpText = "заменить значение по ключу, если новое значение больше старого";
     private final int id;
     private final Product product;
     private static final long serialVersionUID = 6529685098267757690L;

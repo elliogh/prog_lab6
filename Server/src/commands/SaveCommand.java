@@ -10,12 +10,12 @@ import java.util.TreeMap;
  * Класс команды save
  */
 public class SaveCommand implements Command, Serializable {
-    private String key = "save";
-    private String helpText = "сохранить коллекцию в файл";
+    private final String key = "save";
+    private final String helpText = "сохранить коллекцию в файл";
 
     @Override
     public String execute(CommandReceiver commandReceiver) {
-        return "to be continued";//CommandReceiver.save();
+        return commandReceiver.save();
     }
 
     @Override

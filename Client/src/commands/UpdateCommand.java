@@ -9,8 +9,8 @@ import java.io.Serializable;
  * Класс команды update
  */
 public class UpdateCommand implements Command, Serializable {
-    private String key = "update";
-    private String helpText = "обновить значение элемента коллекции, id которого равен заданному";
+    private final String key = "update";
+    private final String helpText = "обновить значение элемента коллекции, id которого равен заданному";
     private final int id;
     private final Product product;
     private static final long serialVersionUID = 6529685098267757690L;

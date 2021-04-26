@@ -2,19 +2,17 @@ import utill.CommandReader;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class Client {
-
     public static void main(String[] args) throws IOException {
         Scanner consoleScanner = new Scanner(System.in);
-        String address = "127.0.0.1";
+        //String address = "127.0.0.1";
         int port = 0;
         String input;
         try {
-            System.out.println("Введите адресс:");
+            //System.out.println("Введите адресс:");
             //address = consoleScanner.nextLine();
             System.out.println("Введите порт: ");
             input = consoleScanner.nextLine();

@@ -5,7 +5,6 @@ import collection.Person;
 import collection.Product;
 import collection.UnitOfMeasure;
 import commands.*;
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -14,12 +13,13 @@ import java.util.*;
  * Класс Парсер(Parser). Делает парсинг команд
  */
 public class CommandReader {
-    public static ArrayList<String> listOfPaths = new ArrayList<>();
-    public static boolean isRec = false;
-    public static boolean isExecuteScript = false;
-    public static ArrayList<String> listOfCommands = new ArrayList<>();
-    public static String argument = "";
-    ArrayList<String> scriptPaths = new ArrayList<>();
+    private static final ArrayList<String> listOfPaths = new ArrayList<>();
+    private static boolean isRec = false;
+    private static boolean isExecuteScript = false;
+    private static final ArrayList<String> listOfCommands = new ArrayList<>();
+    private static String argument = "";
+    private final ArrayList<String> scriptPaths = new ArrayList<>();
+    private final String[] fields = new String[12];
 
 
     /**
@@ -28,7 +28,7 @@ public class CommandReader {
      */
     public void parseCommand(String[] input, DatagramSocket socket, SocketAddress address, Scanner scanner) {
         String commandKey = input[0];
-        String ar []  = Arrays.copyOfRange(input, 1, input.length);
+        String[] ar = Arrays.copyOfRange(input, 1, input.length);
         switch (commandKey) {
             case "help" :
                 send(new HelpCommand(), socket, address);
@@ -44,8 +44,9 @@ public class CommandReader {
                 break;
             case "insert" :
                 try {
-                    if (isExecuteScript) send(new InsertCommand(Integer.parseInt(argument), insertProduct(listOfPaths.get(listOfPaths.size()), ar)), socket, address);
-                    else send(new InsertCommand(Integer.parseInt(ar[0]), insertProduct(null, ar)), socket, address);
+                    //Проверяем на execute_script
+                    if (isExecuteScript) send(new InsertCommand(Integer.parseInt(argument), insertProduct(argument.split(" "))), socket, address);
+                    else send(new InsertCommand(Integer.parseInt(ar[0]), insertProduct(ar)), socket, address);
                     receive(socket);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     System.out.println("Недостаточно аргументов");
@@ -55,7 +56,9 @@ public class CommandReader {
                 break;
             case "update" :
                 try {
-                    send(new UpdateCommand(Integer.parseInt(ar[0]), insertProduct(null, ar)), socket, address);
+                    //Проверяем на execute_script
+                    if (isExecuteScript) send(new UpdateCommand(Integer.parseInt(argument), insertProduct(argument.split(" "))), socket, address);
+                    else send(new UpdateCommand(Integer.parseInt(ar[0]), insertProduct(ar)), socket, address);
                     receive(socket);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     System.out.println("Недостаточно аргументов");
@@ -80,18 +83,38 @@ public class CommandReader {
             case "execute_script" :
                 isExecuteScript = true;
                 ArrayList<String> script = readScript(ar[0]);
-                //ArrayList<String> scriptPaths = new ArrayList<>();
                 scriptPaths.add(ar[0]);
                 if (checkRecurssionInScript(script, scriptPaths)) {
                     System.out.println("Рекурсия");
                 }
                 else {
                     try {
-                        readWholeScript(script);
+                        readWholeScript(script); //Читаем полный скрипт и записываем в listOfCommands
                         for (int i = 0; i < listOfCommands.size(); i++) {
-                            if (listOfCommands.get(i).trim().split(" ")[0].equals("insert"))
-                            argument = listOfCommands.get(i).trim().split(" ")[1];
-                            parseCommand(listOfCommands.get(i).trim().split(" "), socket, address, scanner);
+                            String[] in = listOfCommands.get(i).trim().split(" ");
+                            if (in[0].equals("insert") || in[0].equals("update") || in[0].equals("remove_lower")) {
+                                if (!in[0].equals("remove_lower")) argument = in[1];
+                                if (listOfCommands.size() - i <= 12) {
+                                    System.out.println("Недостаточно полей");
+                                    break;
+                                }
+                                else {
+                                    fields[0] = listOfCommands.get(i + 1);
+                                    fields[1] = listOfCommands.get(i + 2);
+                                    fields[2] = listOfCommands.get(i + 3);
+                                    fields[3] = listOfCommands.get(i + 4);
+                                    fields[4] = listOfCommands.get(i + 5);
+                                    fields[5] = listOfCommands.get(i + 6);
+                                    fields[6] = listOfCommands.get(i + 7);
+                                    fields[7] = listOfCommands.get(i + 8);
+                                    fields[8] = listOfCommands.get(i + 9);
+                                    fields[9] = listOfCommands.get(i + 10);
+                                    fields[10] = listOfCommands.get(i + 11);
+                                    fields[11] = listOfCommands.get(i + 12);
+                                    i+=12;
+                                }
+                            }
+                            parseCommand(in, socket, address, scanner); //Отправляем команду
                         }
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -99,7 +122,7 @@ public class CommandReader {
                 }
                 listOfCommands.clear();
                 listOfPaths.clear();
-                isExecuteScript = false;
+                isExecuteScript = false; //Выставляем переменную проверки execute_script = false
                 break;
             case "exit" :
                 System.out.println("Завершение работы клиентского приложения");
@@ -108,7 +131,8 @@ public class CommandReader {
                 try {
                     String[] a = new String[1];
                     a[0] = "45";
-                    send(new RemoveLowerCommand(insertProduct(null, a)), socket, address);
+                    if (isExecuteScript) send(new RemoveLowerCommand(insertProduct(a)), socket, address);
+                    else send(new RemoveLowerCommand(insertProduct(a)), socket, address);
                     receive(socket);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     System.out.println("Недостаточно аргументов");
@@ -118,7 +142,7 @@ public class CommandReader {
                 break;
             case "replace_if_greater" :
                 try {
-                    send(new ReplaceIfGreaterCommand(Integer.parseInt(ar[0]), insertProduct(null, ar)), socket, address);
+                    send(new ReplaceIfGreaterCommand(Integer.parseInt(ar[0]), insertProduct(ar)), socket, address);
                     receive(socket);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     System.out.println("Недостаточно аргументов");
@@ -153,164 +177,190 @@ public class CommandReader {
         }
     }
 
-    public static ArrayList<String> returnScriptPaths(String path) {
-        listOfPaths.add(path);
-        return listOfPaths;
-    }
-
-    public Product insertProduct(String path, String[] ar) {
+    /**
+     * Метод для получения экземпляра класса Product
+     * @param ar аргумент команды
+     * @return product
+     */
+    public Product insertProduct(String[] ar) {
         Scanner scanner = new Scanner(System.in);
-
-        if (isExecuteScript) {
-            try {
-                scanner = new Scanner(new File(path));
-            } catch (FileNotFoundException e) {
-                System.out.println("Файл не найден");
-            }
-        }
-
-//        if (path != null) {
-//            try {
-//                scanner = new Scanner(new File(path));
-//                while (true) {
-//                    if (scanner.hasNextLine()) {
-//                        if (scanner.nextLine().trim().split(" ")[0].equals("insert")) {
-//                            break;
-//                        }
-//                    }
-//                }
-//            } catch (FileNotFoundException e) {
-//                System.out.println("Файл не найден");
-//            }
-//        }
         String line = "";
         Product product = new Product(Integer.parseInt(ar[0]), null, null, null, 0,  null, null, null, null);
 
-        while (true) {
-            System.out.println("Введите значение поля name ");
-            if (scanner.hasNextLine()) {
-                line = scanner.nextLine().trim();
-            }
-            if (line.equals(null) || line.equals("")) {
-                System.out.println("Ошибка ввода");
-            } else {
-                product.setName(line);
-                break;
-            }
-        }
-
-        Coordinates coordinates = new Coordinates(0, null);
-        System.out.println("Введем координаты");
-
-        while (true) {
-            try {
-                System.out.println("Введите значение поля для координаты X ");
-                if (scanner.hasNextLine()) {
-                    line = scanner.nextLine().trim();
+        //Ввод product если execute_script
+        if (isExecuteScript) {
+            if (isFloat(fields[1]) && isFloat(fields[2]) && isInteger(fields[3]) && isFloat(fields[5]) && isUnitOfMeasure(fields[6]) && isDateFormat(fields[8]) && isFloat(fields[9]) && isLong(fields[10])) {
+                product.setName(fields[0]);
+                product.setCoordinates(new Coordinates(Double.parseDouble(fields[1]), Float.parseFloat(fields[2])));
+                product.setCreationDate();
+                product.setPrice(Integer.parseInt(fields[3]));
+                product.setPartNumber(fields[4]);
+                product.setManufactureCost(Float.parseFloat(fields[5]));
+                switch (fields[6]) {
+                    case "METERS":
+                        product.setUnitOfMeasure(UnitOfMeasure.METERS);
+                        break;
+                    case "CENTIMETERS":
+                        product.setUnitOfMeasure(UnitOfMeasure.CENTIMETERS);
+                        break;
+                    case "GRAMS":
+                        product.setUnitOfMeasure(UnitOfMeasure.GRAMS);
+                        break;
+                    default:
+                        System.out.println("Ошибка ввода полей");
+                        break;
                 }
-                coordinates.setX(Double.parseDouble(line));
-                break;
-            } catch (Exception e) {
-                System.out.println("Ошибка ввода");
-            }
-        }
+                int date = 0;
+                int month = 0;
+                int year = 0;
+                try {
+                    if (fields[8].length() == 10 && fields[8].matches("\\d{2}[.]\\d{2}[.]\\d{4}")) {
+                        String[] str = fields[8].split("\\.");
 
-        while (true) {
-            try {
-                System.out.println("Введите значение поля для координаты Y ");
-                if (scanner.hasNextLine()) {
-                    line = scanner.nextLine().trim();
+                        if (Integer.parseInt(str[0]) > 0 && Integer.parseInt(str[0]) < 32) {
+                            date = Integer.parseInt(str[0]);
+                        }
+
+                        if (Integer.parseInt(str[1]) > 0 && Integer.parseInt(str[1]) < 13) {
+                            month = Integer.parseInt(str[1]) - 1;
+                        }
+
+                        if (Integer.parseInt(str[2]) > 0) {
+                            year = Integer.parseInt(str[2]) - 1900;
+                        }
+                    } else System.out.println("Дата введена неверно");
+                } catch (Exception e) {
+                    System.out.println("Ошибка ввода");
                 }
-                if (Float.parseFloat(line) <= 834) {
-                    coordinates.setY(Float.valueOf(line));
-                    break;
-                } else throw new Exception("Wrong input");
-            } catch (Exception e) {
-                System.out.println("Ошибка ввода");
-            }
+                product.setOwner(new Person(fields[7], new Date(year, month, date), Float.parseFloat(fields[9]), Long.parseLong(fields[10]), fields[11]));
+            } else System.out.println("Поля неверны. Проверьте файл");
         }
-        product.setCoordinates(coordinates);
-
-        product.setCreationDate();
-
-        while (true) {
-            try {
-                System.out.println("Введите значение для поля price ");
-                if (scanner.hasNextLine()) {
-                    line = scanner.nextLine().trim();
-                }
-                if (Integer.parseInt(line) > 0) {
-                    product.setPrice(Integer.parseInt(line));
-                    break;
-                } else throw new Exception("Wrong input");
-            } catch (Exception e) {
-                System.out.println("Ошибка ввода");
-            }
-        }
-
-        while (true) {
-            try {
-                System.out.println("Введите значение для поля partNumber ");
+        //Ввод product если нет execute_script
+        else {
+            while (true) {
+                System.out.println("Введите значение поля name ");
                 if (scanner.hasNextLine()) {
                     line = scanner.nextLine().trim();
                 }
                 if (line.equals(null) || line.equals("")) {
-                    throw new Exception("Wrong input");
+                    System.out.println("Ошибка ввода");
                 } else {
-                    product.setPartNumber(line);
+                    product.setName(line);
                     break;
                 }
-            } catch (Exception e) {
-                System.out.println("Ошибка ввода");
             }
-        }
 
-        while (true) {
-            try {
-                System.out.println("Введите значение для поля manufactureCost ");
-                if (scanner.hasNextLine()) {
-                    line = scanner.nextLine().trim();
-                }
-                if (line.equals(null) && line.equals("")) {
-                    throw new Exception("Wrong input");
-                }
-                product.setManufactureCost(Float.valueOf(line));
-                break;
-            } catch (Exception e) {
-                System.out.println("Ошибка ввода");
-            }
-        }
+            Coordinates coordinates = new Coordinates(0, null);
+            System.out.println("Введем координаты");
 
-        while (true) {
-            try {
-                System.out.println("Введите значение для поля unitOfMeasure ");
-                System.out.println("Возможные варианты : " + UnitOfMeasure.METERS + ", " + UnitOfMeasure.CENTIMETERS + ", " + UnitOfMeasure.GRAMS);
-                if (scanner.hasNextLine()) {
-                    line = scanner.nextLine().trim();
-                }
-                if (line.equals("METERS") || line.equals("CENTIMETERS") || line.equals("GRAMS")) {
-                    switch (line) {
-                        case ("METERS"):
-                            product.setUnitOfMeasure(UnitOfMeasure.METERS);
-                            break;
-                        case ("CENTIMETERS") :
-                            product.setUnitOfMeasure(UnitOfMeasure.CENTIMETERS);
-                            break;
-                        case ("GRAMS") :
-                            product.setUnitOfMeasure(UnitOfMeasure.GRAMS);
-                            break;
+            while (true) {
+                try {
+                    System.out.println("Введите значение поля для координаты X ");
+                    if (scanner.hasNextLine()) {
+                        line = scanner.nextLine().trim();
                     }
+                    coordinates.setX(Double.parseDouble(line));
                     break;
+                } catch (Exception e) {
+                    System.out.println("Ошибка ввода");
                 }
-                else throw new Exception("Wrong input");
-            } catch (Exception e) {
-                System.out.println("Ошибка ввода");
             }
+
+            while (true) {
+                try {
+                    System.out.println("Введите значение поля для координаты Y ");
+                    if (scanner.hasNextLine()) {
+                        line = scanner.nextLine().trim();
+                    }
+                    if (Float.parseFloat(line) <= 834) {
+                        coordinates.setY(Float.valueOf(line));
+                        break;
+                    } else throw new Exception("Wrong input");
+                } catch (Exception e) {
+                    System.out.println("Ошибка ввода");
+                }
+            }
+            product.setCoordinates(coordinates);
+
+            product.setCreationDate();
+
+            while (true) {
+                try {
+                    System.out.println("Введите значение для поля price ");
+                    if (scanner.hasNextLine()) {
+                        line = scanner.nextLine().trim();
+                    }
+                    if (Integer.parseInt(line) > 0) {
+                        product.setPrice(Integer.parseInt(line));
+                        break;
+                    } else throw new Exception("Wrong input");
+                } catch (Exception e) {
+                    System.out.println("Ошибка ввода");
+                }
+            }
+
+            while (true) {
+                try {
+                    System.out.println("Введите значение для поля partNumber ");
+                    if (scanner.hasNextLine()) {
+                        line = scanner.nextLine().trim();
+                    }
+                    if (line.equals(null) || line.equals("")) {
+                        throw new Exception("Wrong input");
+                    } else {
+                        product.setPartNumber(line);
+                        break;
+                    }
+                } catch (Exception e) {
+                    System.out.println("Ошибка ввода");
+                }
+            }
+
+            while (true) {
+                try {
+                    System.out.println("Введите значение для поля manufactureCost ");
+                    if (scanner.hasNextLine()) {
+                        line = scanner.nextLine().trim();
+                    }
+                    if (line.equals(null) && line.equals("")) {
+                        throw new Exception("Wrong input");
+                    }
+                    product.setManufactureCost(Float.valueOf(line));
+                    break;
+                } catch (Exception e) {
+                    System.out.println("Ошибка ввода");
+                }
+            }
+
+            while (true) {
+                try {
+                    System.out.println("Введите значение для поля unitOfMeasure ");
+                    System.out.println("Возможные варианты : " + UnitOfMeasure.METERS + ", " + UnitOfMeasure.CENTIMETERS + ", " + UnitOfMeasure.GRAMS);
+                    if (scanner.hasNextLine()) {
+                        line = scanner.nextLine().trim();
+                    }
+                    if (line.equals("METERS") || line.equals("CENTIMETERS") || line.equals("GRAMS")) {
+                        switch (line) {
+                            case ("METERS"):
+                                product.setUnitOfMeasure(UnitOfMeasure.METERS);
+                                break;
+                            case ("CENTIMETERS"):
+                                product.setUnitOfMeasure(UnitOfMeasure.CENTIMETERS);
+                                break;
+                            case ("GRAMS"):
+                                product.setUnitOfMeasure(UnitOfMeasure.GRAMS);
+                                break;
+                        }
+                        break;
+                    } else throw new Exception("Wrong input");
+                } catch (Exception e) {
+                    System.out.println("Ошибка ввода");
+                }
+            }
+
+            Person owner = insertOwner(scanner);
+            product.setOwner(owner);
         }
-
-        Person owner = insertOwner(scanner);
-        product.setOwner(owner);
-
         return product;
     }
 
@@ -417,10 +467,17 @@ public class CommandReader {
             } catch (Exception e) {
                 System.out.println("Ошибка ввода");
             }
+
         } return owner;
     }
 
-        private void send(Command command, DatagramSocket socket, SocketAddress address) {
+    /**
+     * Метод для отправки пакета с командой Серверу
+     * @param command - команда
+     * @param socket - сокет
+     * @param address - адрес для отправки
+     */
+    private void send(Command command, DatagramSocket socket, SocketAddress address) {
         byte[] sending;
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -437,15 +494,17 @@ public class CommandReader {
         }
     }
 
+    /**
+     * Метод для получения пакета от Сервера
+     * @param socket - сокет
+     */
     public void receive(DatagramSocket socket) {
-        byte[] message = new byte[16384];
+        byte[] message = new byte[16384]; //Массив байт, который мы получаем
         try {
             DatagramPacket packet = new DatagramPacket(message, message.length);
-            socket.setSoTimeout(10000);
+            socket.setSoTimeout(10000); //Задержка для возможности обработки запроса клиента
             socket.receive(packet);
             ByteArrayInputStream bis = new ByteArrayInputStream(message);
-            //String data = new String(packet.getData());
-            //System.out.println((String) data);
             ObjectInput in = new ObjectInputStream(bis);
             String received_message = (String) in.readObject();
             System.out.println(received_message);
@@ -456,6 +515,12 @@ public class CommandReader {
         }
     }
 
+    /**
+     * Метод, который проверяет рекурсию в файлах execute_script
+     * @param script - изначальный список команд
+     * @param listOfPaths - изначальный список путей у всех execute_script
+     * @return есть ли рекурсия или нет
+     */
     private boolean checkRecurssionInScript(ArrayList<String> script, ArrayList<String> listOfPaths) {
         for (int i = 0; i < script.size(); i++) {
             String[] input = script.get(i).trim().split(" ");
@@ -471,12 +536,10 @@ public class CommandReader {
         return isRec;
     }
 
-
-
     /**
      * Метод, читающий команды из скрипт-файла
      * @param path путь к файлу
-     * @return
+     * @return Изначальный список команд
      */
     private ArrayList<String> readScript(String path) {
         File file = new File(path);
@@ -492,6 +555,12 @@ public class CommandReader {
         return listOfCommands;
     }
 
+    /**
+     * Метод, который возвращает полный список команд для испонения, даже если есть вложенные execute_script
+     * @param list изначальный список команд
+     * @return Полный список команд
+     * @throws FileNotFoundException
+     */
     private ArrayList<String> readWholeScript(ArrayList<String> list) throws FileNotFoundException {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).trim().split(" ")[0].equals("execute_script")) {
@@ -499,16 +568,42 @@ public class CommandReader {
             }
             else listOfCommands.add(list.get(i));
         }
-//        File file = new File(path);
-//        Scanner scanner = new Scanner(file);
-//        while (scanner.hasNextLine()) {
-//            listOfCommands.add(scanner.nextLine());
-//            if (scanner.nextLine().trim().split(" ")[0].equals("execute_script")) {
-//                readWholeScript(scanner.nextLine().trim().split(" ")[1]);
-//            }
-//        }
-
         return listOfCommands;
+    }
+
+    public static boolean isInteger(String s) {
+        try {
+            Integer.parseInt(s);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public static boolean isFloat(String s) {
+        try {
+            Float.parseFloat(s);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public static boolean isLong(String s) {
+        try {
+            Long.parseLong(s);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public static boolean isUnitOfMeasure(String s) {
+        return (s.equals(UnitOfMeasure.METERS.toString()) || s.equals(UnitOfMeasure.CENTIMETERS.toString()) || s.equals(UnitOfMeasure.GRAMS.toString()));
+    }
+
+    public static boolean isDateFormat(String s) {
+        return s.matches("\\d{2}[.]\\d{2}[.]\\d{4}");
     }
 
 }
