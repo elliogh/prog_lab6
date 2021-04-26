@@ -55,7 +55,7 @@ public class CommandReceiver {
                 System.exit(1);
             }
         }
-        return  Clr.ANSI_BLUE + "\nТип коллекции: " + Clr.ANSI_RESET + getCollectionType() +
+        return  Clr.ANSI_BLUE + "Тип коллекции: " + Clr.ANSI_RESET + getCollectionType() +
                 Clr.ANSI_BLUE + "\nДата инициализации: " + Clr.ANSI_RESET + getInitDate() +
                 Clr.ANSI_BLUE + "\nКоличество элементов: " + Clr.ANSI_RESET + getNumberOfElements();
     }
@@ -70,27 +70,27 @@ public class CommandReceiver {
 
     public String insert(int id, Product product) {
         collection.put(id, product);
-        return "Элемент добавлен в коллекцию";
+        return Clr.ANSI_GREEN + "Элемент добавлен в коллекцию" + Clr.ANSI_RESET;
     }
 
     public String update(int id, Product product) {
         if (collection.containsKey(id)) {
             collection.replace(id, product);
-            return "Элемент обновлен";
-        } else return "Элемента с таким ключом не существует";
+            return Clr.ANSI_GREEN + "Элемент обновлен" + Clr.ANSI_RESET;
+        } else return Clr.ANSI_RED + "Элемента с таким ключом не существует" + Clr.ANSI_RESET;
     }
 
     public String removeKey(int id) {
         if (collection.containsKey(id)) {
             collection.remove(id);
-            return "Команда успешно выполнена";
+            return Clr.ANSI_GREEN + "Команда успешно выполнена" + Clr.ANSI_RESET;
         }
-        else return "Элемента с таким ключом не существует";
+        else return Clr.ANSI_RED + "Элемента с таким ключом не существует" + Clr.ANSI_RESET;
     }
 
     public String clear() {
         collection.clear();
-        return "Коллекция очищена";
+        return Clr.ANSI_GREEN + "Коллекция очищена" + Clr.ANSI_RESET;
     }
 
     public String executeScript(ArrayList<String> list) {
@@ -109,7 +109,7 @@ public class CommandReceiver {
         for (Integer s : keys) {
             collection.remove(s);
         }
-        return "Команда успешно выполнена";
+        return Clr.ANSI_GREEN + "Команда успешно выполнена" + Clr.ANSI_RESET;
     }
 
     public String replaceIfGreater(int id, Product product) {
@@ -117,9 +117,9 @@ public class CommandReceiver {
             if (collection.get(id).hashCode() - product.hashCode() < 0) {
                 collection.replace(id, product);
             }
-            return "Команда успешно выполнена";
+            return Clr.ANSI_GREEN + "Команда успешно выполнена" + Clr.ANSI_RESET;
         }
-        else return "Элемента с таким ключом не существует";
+        else return Clr.ANSI_RED + "Элемента с таким ключом не существует" + Clr.ANSI_RESET;
     }
 
     public String removeLowerKey(int id) {
@@ -131,7 +131,7 @@ public class CommandReceiver {
         for (Integer s : keys) {
             collection.remove(s);
         }
-        return "Команда успешно выполнена";
+        return Clr.ANSI_GREEN + "Команда успешно выполнена" + Clr.ANSI_RESET;
     }
 
     public String removeAllByOwner(Person owner) {
@@ -145,7 +145,7 @@ public class CommandReceiver {
         for (Integer s : keys) {
             collection.remove(s);
         }
-        return "Команда успешно выполнена";
+        return Clr.ANSI_GREEN + "Команда успешно выполнена" + Clr.ANSI_RESET;
     }
 
     public String printAscending() {
@@ -168,7 +168,7 @@ public class CommandReceiver {
 
     public String save() {
         new JsonParser().writeToJson(path, collection);
-        return "Коллекция сохранена";
+        return Clr.ANSI_GREEN + "Коллекция сохранена" + Clr.ANSI_RESET;
     }
 
     /**
@@ -200,5 +200,4 @@ public class CommandReceiver {
             commandSet.add(command);
         }
     }
-
 }

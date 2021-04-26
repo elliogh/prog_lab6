@@ -6,7 +6,6 @@ import java.io.*;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.Scanner;
 
 public class Controller {
     Connector connector;
@@ -45,6 +44,8 @@ public class Controller {
                     if (reader.readLine().trim().split(" ")[0].equals("save")) System.out.println(commandReceiver.save());
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (NullPointerException e) {
+                System.out.println("Завершение работы программы...");
             }
         }
     }

@@ -1,5 +1,7 @@
 package collection;
 
+import utill.Clr;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -67,11 +69,11 @@ public class Person implements Serializable {
 
     @Override
     public String toString() {
-        return  "          Имя: " + name + "\n" +
-                "          День рождения: " + birthday + "\n" +
-                "          Рост: " + height + "\n" +
-                "          Вес: " + weight + "\n" +
-                "          Номер паспорта: " + passportID;
+        return Clr.ANSI_CYAN + "          Имя: " + Clr.ANSI_RESET + name + "\n" +
+               Clr.ANSI_CYAN +  "          День рождения: " + Clr.ANSI_RESET + birthday + "\n" +
+               Clr.ANSI_CYAN +  "          Рост: " + Clr.ANSI_RESET + height + "\n" +
+               Clr.ANSI_CYAN +  "          Вес: " + Clr.ANSI_RESET + weight + "\n" +
+               Clr.ANSI_CYAN +  "          Номер паспорта: " + Clr.ANSI_RESET + passportID;
     }
 
     @Override

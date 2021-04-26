@@ -14,7 +14,7 @@ public class Client {
         try {
             //System.out.println("Введите адресс:");
             //address = consoleScanner.nextLine();
-            System.out.println("Введите порт: ");
+            System.out.print("Введите порт: ");
             input = consoleScanner.nextLine();
             try {
                 port = Integer.parseInt(input);

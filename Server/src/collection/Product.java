@@ -3,6 +3,7 @@ package collection;
 import java.io.Serializable;
 import java.util.Date;
 import collection.*;
+import utill.Clr;
 
 /**
  * Класс продукта
@@ -137,15 +138,15 @@ public class Product implements Serializable {
                 nameOfUnitOFMeasure = "Сантиметр";
                 break;
         }
-        return  "Id: " + id + "\n" +
-                "Название: " + name + "\n" +
-                "Координаты: " + coordinates + "\n" +
-                "Дата создания: " + creationDate + "\n" +
-                "Цена: " + price + "\n" +
-                "Номер части: " + partNumber + "\n" +
-                "Стоимость производства: " + manufactureCost + "\n" +
-                "Единица измерения: " + nameOfUnitOFMeasure + "\n" +
-                "Владелец: " + "\n" + owner;
+        return  Clr.ANSI_CYAN + "Id: " + Clr.ANSI_RESET + id + "\n" +
+                Clr.ANSI_CYAN + "Название: " + Clr.ANSI_RESET + name + "\n" +
+                Clr.ANSI_CYAN + "Координаты: " + Clr.ANSI_RESET + coordinates + "\n" +
+                Clr.ANSI_CYAN + "Дата создания: " + Clr.ANSI_RESET + creationDate + "\n" +
+                Clr.ANSI_CYAN + "Цена: " + Clr.ANSI_RESET + price + "\n" +
+                Clr.ANSI_CYAN + "Номер части: " + Clr.ANSI_RESET + partNumber + "\n" +
+                Clr.ANSI_CYAN + "Стоимость производства: " + Clr.ANSI_RESET + manufactureCost + "\n" +
+                Clr.ANSI_CYAN + "Единица измерения: " + Clr.ANSI_RESET + nameOfUnitOFMeasure + "\n" +
+                Clr.ANSI_CYAN + "Владелец: " + Clr.ANSI_RESET + "\n" + owner;
     }
 
     @Override
